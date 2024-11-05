@@ -1,5 +1,7 @@
 ﻿using EchoSync.Transport;
 using LiteNetLib;
+using LiteNetLibAdapters.Receivers;
+using LiteNetLibAdapters.Senders;
 
 namespace LiteNetLibAdapters;
 
@@ -7,28 +9,26 @@ public class LiteNetLibClient : IClient
 {
     private readonly string _host;
     private readonly int _port;
+    
     public IPacketReceiver Receiver { get; set; }
     
     public IPacketSender Sender { get; set; }
     
     public Guid Identifier { get; set; } = Guid.NewGuid();
 
-    private EventBasedNetListener _listener;
-
-    private NetManager _client;
-    
-    public LiteNetLibClient(NetPeer peer)
-    {
-        _client = peer.NetManager;
-    }
+    private readonly NetManager _client;
     
     public LiteNetLibClient(string host, int port)
     {
         _host = host;
         _port = port;
-        _listener = new EventBasedNetListener();
-        _client = new NetManager(_listener);
+        
+        var listener = new EventBasedNetListener();
+        _client = new NetManager(listener);
         _client.Start();
+        
+        Sender = new ClientSender(_client);
+        Receiver = new ClientReceiver(listener);
     }
     
     public void Connect()
