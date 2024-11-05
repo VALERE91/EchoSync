@@ -13,6 +13,12 @@ public class EchoClientTests
         _echoClient = new EchoClient(new ClientMock());    
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _echoClient.Dispose();
+    }
+
     [Test]
     public void CanCreate()
     {

@@ -10,4 +10,18 @@ public class ClientMock : IClient
     public IPacketSender Sender { get; set; } = new PacketSenderMock();
 
     public Guid Identifier { get; set; } = Guid.NewGuid();
+    public void Connect()
+    {
+        
+    }
+
+    public void Dispose()
+    {
+        
+    }
+
+    public void Tick(float deltaTimeSeconds)
+    {
+        
+    }
 }

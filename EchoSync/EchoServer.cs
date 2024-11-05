@@ -11,7 +11,7 @@ namespace EchoSync
         {
             _server = server;
             
-            _server.OnClientCheck += ClientCheckHandler;
+            _server.OnConnectionRequest += ConnectionRequestHandler;
             _server.OnClientConnected += ClientConnectedHandler;
             _server.OnClientDisconnected += ClientDisconnectedHandler;
         }
@@ -26,7 +26,7 @@ namespace EchoSync
             Console.WriteLine($"Client {client.Identifier} connected");
         }
 
-        private void ClientCheckHandler(string ip, int port, Span<byte> buffer)
+        private void ConnectionRequestHandler(string ip, int port, Span<byte> buffer)
         {
             Console.WriteLine($"Client check from {ip}:{port}");
         }

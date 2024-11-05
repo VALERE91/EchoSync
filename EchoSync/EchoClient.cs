@@ -1,14 +1,25 @@
-﻿using EchoSync.Transport;
+﻿using System;
+using EchoSync.Transport;
 
 namespace EchoSync
 {
-    public class EchoClient
+    public class EchoClient : IDisposable, ITickable
     {
         private readonly IClient _client;
         
         public EchoClient(IClient client)
         {
             _client = client;
+        }
+
+        public void Dispose()
+        {
+            _client.Dispose();
+        }
+
+        public void Tick(float deltaTimeSeconds)
+        {
+            _client.Tick(deltaTimeSeconds);
         }
     }
 }
