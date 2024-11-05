@@ -1,3 +1,3 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using EchoSync;
 
-Console.WriteLine("Hello, World!");
+Console.WriteLine("Echo Sync Relay");

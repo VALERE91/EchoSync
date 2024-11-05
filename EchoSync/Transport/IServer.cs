@@ -2,7 +2,7 @@
 
 namespace EchoSync.Transport
 {
-    public interface IServer
+    public interface IServer : IDisposable, ITickable
     {
         public delegate void OnClientCheckDelegate(string ip, int port, Span<byte> buffer);
         public delegate void OnClientConnectedDelegate(IClient client);
@@ -11,5 +11,7 @@ namespace EchoSync.Transport
         public event OnClientCheckDelegate OnClientCheck;
         public event OnClientConnectedDelegate OnClientConnected;
         public event OnClientDisconnectedDelegate OnClientDisconnected;
+
+        public void Listen();
     }
 }

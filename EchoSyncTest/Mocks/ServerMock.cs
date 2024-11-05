@@ -10,4 +10,19 @@ public class ServerMock : IServer
     public event IServer.OnClientConnectedDelegate? OnClientConnected;
     public event IServer.OnClientDisconnectedDelegate? OnClientDisconnected;
 #pragma warning restore CS0067
+    
+    public void Dispose()
+    {
+        // TODO release managed resources here
+    }
+
+    public void Tick(float deltaTimeSeconds)
+    {
+        
+    }
+    
+    public void Listen()
+    {
+        
+    }
 }

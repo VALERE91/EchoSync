@@ -13,6 +13,12 @@ public class EchoServerTests
         _echoServer = new EchoServer(new ServerMock());    
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+        _echoServer.Dispose();
+    }
+    
     [Test]
     public void CanCreate()
     {
