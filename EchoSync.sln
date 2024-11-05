@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoSync", "EchoSync\EchoSync.csproj", "{195EF237-471F-4FA9-AFC0-526509263DCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoSyncTest", "EchoSyncTest\EchoSyncTest.csproj", "{650EE565-5331-4B78-BCBE-0F02D61BB1C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoSyncRelay", "EchoSyncRelay\EchoSyncRelay.csproj", "{CBFAB323-B87B-405F-88B4-94C707E8B198}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{195EF237-471F-4FA9-AFC0-526509263DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{195EF237-471F-4FA9-AFC0-526509263DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{195EF237-471F-4FA9-AFC0-526509263DCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{650EE565-5331-4B78-BCBE-0F02D61BB1C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{650EE565-5331-4B78-BCBE-0F02D61BB1C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{650EE565-5331-4B78-BCBE-0F02D61BB1C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{650EE565-5331-4B78-BCBE-0F02D61BB1C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBFAB323-B87B-405F-88B4-94C707E8B198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBFAB323-B87B-405F-88B4-94C707E8B198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBFAB323-B87B-405F-88B4-94C707E8B198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBFAB323-B87B-405F-88B4-94C707E8B198}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
