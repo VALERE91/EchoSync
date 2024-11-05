@@ -14,6 +14,8 @@ namespace EchoSync
             _server.OnConnectionRequest += ConnectionRequestHandler;
             _server.OnClientConnected += ClientConnectedHandler;
             _server.OnClientDisconnected += ClientDisconnectedHandler;
+            
+            _server.Listen();
         }
 
         private void ClientDisconnectedHandler(IClient client)
@@ -26,14 +28,10 @@ namespace EchoSync
             Console.WriteLine($"Client {client.Identifier} connected");
         }
 
-        private void ConnectionRequestHandler(string ip, int port, Span<byte> buffer)
+        private bool ConnectionRequestHandler(string ip, int port, Span<byte> buffer)
         {
             Console.WriteLine($"Client check from {ip}:{port}");
-        }
-
-        public void Listen()
-        {
-            _server.Listen();
+            return true;
         }
 
         public void Dispose()

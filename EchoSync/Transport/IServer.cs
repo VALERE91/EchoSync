@@ -4,7 +4,7 @@ namespace EchoSync.Transport
 {
     public interface IServer : IDisposable, ITickable
     {
-        public delegate void OnConnectionRequestDelegate(string ip, int port, Span<byte> buffer);
+        public delegate bool OnConnectionRequestDelegate(string ip, int port, Span<byte> buffer);
         public delegate void OnClientConnectedDelegate(IClient client);
         public delegate void OnClientDisconnectedDelegate(IClient client);
         

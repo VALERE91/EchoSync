@@ -10,6 +10,7 @@ namespace EchoSync
         public EchoClient(IClient client)
         {
             _client = client;
+            _client.Connect();
         }
 
         public void Dispose()

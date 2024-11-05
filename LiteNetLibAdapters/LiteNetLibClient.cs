@@ -11,7 +11,7 @@ public class LiteNetLibClient : IClient
     
     public IPacketSender Sender { get; set; }
     
-    public Guid Identifier { get; set; }
+    public Guid Identifier { get; set; } = Guid.NewGuid();
 
     private EventBasedNetListener _listener;
 
@@ -19,7 +19,7 @@ public class LiteNetLibClient : IClient
     
     public LiteNetLibClient(NetPeer peer)
     {
-        
+        _client = peer.NetManager;
     }
     
     public LiteNetLibClient(string host, int port)

@@ -21,9 +21,17 @@ public class LiteNetLibServer : IServer
         
         _listener.ConnectionRequestEvent += request =>
         {
-            OnConnectionRequest?.Invoke(request.RemoteEndPoint.Address.ToString(), 
+            Console.WriteLine(request.Data.RawData.Length);
+            bool? accept = OnConnectionRequest?.Invoke(request.RemoteEndPoint.Address.ToString(), 
                  request.RemoteEndPoint.Port, 
                  request.Data.RawData);
+            if (accept != null && accept.Value)
+            {
+                request.Accept();
+                return;
+            }
+            
+            request.Reject();
         };
         
         _listener.PeerConnectedEvent += peer =>
