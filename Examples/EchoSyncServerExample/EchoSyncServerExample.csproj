@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\EchoSync\EchoSync.csproj" />
       <ProjectReference Include="..\..\LiteNetLibAdapters\LiteNetLibAdapters.csproj" />
+      <ProjectReference Include="..\CommonGameplayCode\CommonGameplayCode.csproj" />
     </ItemGroup>
 
 </Project>
