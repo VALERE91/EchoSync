@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using EchoSync.Replication;
+using EchoSync.Replication.Utils;
 
 namespace EchoSync.Utils
 {
@@ -25,6 +27,12 @@ namespace EchoSync.Utils
             }
 
             return (T)service;
+        }
+        
+        public static void InitializeDefaultServices()
+        {
+            Provide<IObjectIdGenerator>(new DefaultObjectIdGenerator());
+            Provide<ILinkingContext>(new DefaultLinkingContext());
         }
     }
 }

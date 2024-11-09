@@ -10,6 +10,6 @@ namespace EchoSync.Transport
 
         public Guid Identifier { get; protected set; }
 
-        public void Connect();
+        public void Connect(object connectionKey);
     }
 }

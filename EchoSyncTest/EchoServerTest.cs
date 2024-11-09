@@ -1,4 +1,6 @@
 ﻿using EchoSync;
+using EchoSync.Replication;
+using EchoSync.Replication.Server;
 using EchoSyncTest.Mocks;
 
 namespace EchoSyncTest;
@@ -10,7 +12,7 @@ public class EchoServerTests
     [SetUp]
     public void Setup()
     {
-        _echoServer = new EchoServer(new ServerMock());    
+        _echoServer = new EchoServer(new ServerMock(), new ServerRulesMock());    
     }
 
     [TearDown]

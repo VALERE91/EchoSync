@@ -2,16 +2,16 @@
 using System.Text;
 using EchoSync.Transport;
 
-namespace EchoSync
+namespace EchoSync.Replication.Client
 {
-    public class EchoClient : IDisposable, ITickable
+    public class EchoClient : IDisposable, ITickable, IReplicationEngine
     {
         private readonly IClient _client;
         
-        public EchoClient(IClient client)
+        public EchoClient(IClient client, object connectionKey)
         {
             _client = client;
-            _client.Connect();
+            _client.Connect(connectionKey);
         }
 
         public void Dispose()
@@ -37,6 +37,11 @@ namespace EchoSync
             }
             
             _client.Tick(deltaTimeSeconds);
+        }
+
+        public bool HasAuthority()
+        {
+            return false;
         }
     }
 }
