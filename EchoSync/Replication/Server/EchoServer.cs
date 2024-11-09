@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EchoSync.Serialization;
 using EchoSync.Transport;
 
 namespace EchoSync.Replication.Server
@@ -14,6 +15,8 @@ namespace EchoSync.Replication.Server
         private int _nextPlayerId = 0;
         private readonly Dictionary<int, Player> _players;
         public IServerRules ServerRules { get; }
+
+        private List<NetObject> _netObjects = new List<NetObject>();
 
         public EchoServer(IServer server, IServerRules rules)
         {
@@ -30,7 +33,7 @@ namespace EchoSync.Replication.Server
             
             _server.Listen();
         }
-
+        
         private void ClientDisconnectedHandler(IPeer peer)
         {
             Console.WriteLine($"Peer {peer.Identifier} disconnected");
@@ -69,22 +72,34 @@ namespace EchoSync.Replication.Server
 
         public void Tick(float deltaTimeSeconds)
         {
-            foreach (var (identifier, peer) in _peers)
-            {
-                if (!peer.Receiver.HasData(0))
-                {
-                    continue;
-                }
-                if (!peer.Receiver.PeekLatest(0, out var data))
-                {
-                    continue;
-                }
-                
-                Console.WriteLine($"Received data from {identifier}: {Encoding.UTF8.GetString(data)}");
-                peer.Sender.SendPacket(0, Reliability.Unreliable, data);
-                peer.Receiver.PopLatest(0);
-            }
+            // Tick the server
             _server.Tick(deltaTimeSeconds);
+
+            // Create the SnapShot
+            Span<byte> snapshotBuffer = stackalloc byte[1024];
+            var snapshotStream = new BitStream(snapshotBuffer);
+            var snapshotWriter = new EchoBitStream();
+            foreach (var netObject in _netObjects)
+            {
+                netObject.NetWriteTo(snapshotWriter, ref snapshotStream);
+            }
+            ReadOnlySpan<byte> dataToSend = snapshotBuffer.Slice(0, snapshotStream.BytePosition + 1);
+            
+            //Send it to every peer
+            foreach (var (_, peer) in _peers)
+            {
+                peer.Sender.SendPacket(0, Reliability.Unreliable, dataToSend);
+            }
+        }
+
+        public void RegisterNetObject(NetObject netObject)
+        {
+            _netObjects.Add(netObject);
+        }
+
+        public void UnregisterNetObject(NetObject netObject)
+        {
+            _netObjects.Remove(netObject);
         }
 
         public bool HasAuthority()

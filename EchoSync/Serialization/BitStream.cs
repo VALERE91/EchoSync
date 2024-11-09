@@ -15,11 +15,11 @@ namespace EchoSync.Serialization
             BitPosition = 0;
         }
 
-        public void WriteBits(int value, int bitCount)
+        public void WriteBits(uint value, int bitCount)
         {
             for (int i = 0; i < bitCount; i++)
             {
-                int bit = (value >> i) & 1;
+                uint bit = (value >> i) & 1;
                 Buffer[BytePosition] |= (byte)(bit << BitPosition);
                 BitPosition++;
 

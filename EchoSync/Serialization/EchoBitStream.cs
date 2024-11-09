@@ -42,10 +42,10 @@ namespace EchoSync.Serialization
             switch (value)
             {
                 case bool b:
-                    bitStream.WriteBits(b ? 1 : 0, 1);
+                    bitStream.WriteBits(b ? 1u : 0u, 1);
                     break;
                 case int i:
-                    bitStream.WriteBits(i, 32);
+                    bitStream.WriteBits((uint)i, 32);
                     break;
                 case float f:
                     WriteBytes(ref bitStream, BitConverter.GetBytes(f));
@@ -55,6 +55,9 @@ namespace EchoSync.Serialization
                     break;
                 case char c:
                     bitStream.WriteBits(c, 16);
+                    break;
+                case uint u:
+                    bitStream.WriteBits((uint)u, 32);
                     break;
                 default:
                     throw new NotSupportedException($"Type {typeof(T)} is not supported.");
@@ -72,11 +75,11 @@ namespace EchoSync.Serialization
             // Built-in types
             if (type == typeof(bool))
             {
-                bitStream.WriteBits((bool)value ? 1 : 0, 1);
+                bitStream.WriteBits((bool)value ? 1u : 0u, 1);
             }
             else if (type == typeof(int))
             {
-                bitStream.WriteBits((int)value, 32);
+                bitStream.WriteBits((uint)value, 32);
             }
             else if (type == typeof(float))
             {
@@ -89,6 +92,10 @@ namespace EchoSync.Serialization
             else if (type == typeof(char))
             {
                 bitStream.WriteBits((char)value, 16);
+            }
+            else if (type == typeof(uint))
+            {
+                bitStream.WriteBits((uint)value, 32);
             }
             else
             {
@@ -115,6 +122,8 @@ namespace EchoSync.Serialization
                 return (T)(object)BitConverter.ToDouble(ReadBytes(ref bitStream, 8));
             if (typeof(T) == typeof(char))
                 return (T)(object)(char)bitStream.ReadBits(16);
+            if (typeof(T) == typeof(uint))
+                return (T)(object)(uint)bitStream.ReadBits(32);
 
             throw new NotSupportedException($"Type {typeof(T)} is not supported.");
         }
@@ -137,6 +146,8 @@ namespace EchoSync.Serialization
                 return BitConverter.ToDouble(ReadBytes(ref bitStream, 8));
             if (type == typeof(char))
                 return (char)bitStream.ReadBits(16);
+            if (type == typeof(uint))
+                return (uint)bitStream.ReadBits(16);
 
             throw new NotSupportedException($"Type {type} is not supported.");
         }
