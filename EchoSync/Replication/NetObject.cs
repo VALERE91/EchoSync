@@ -41,7 +41,7 @@ namespace EchoSync.Replication
             NetSchema ??= NetSchemaBuilder.CreateSchema<T>();
         }
 
-        public void NetWriteTo(BitStream bitStream)
+        public void NetWriteTo(IBitWriter echoBitStreamWriter, ref BitStream bitStream)
         {
             if (NetSchema == null)
             {
@@ -51,11 +51,11 @@ namespace EchoSync.Replication
             foreach (NetPropertyInfo property in NetSchema.Properties)
             {
                 var value = property.Getter(this);
-                //Write the value
+                echoBitStreamWriter.Write(property.Property.PropertyType, ref bitStream, value);
             }
         }
         
-        public void NetReadFrom(ReadOnlyBitStream bitStream)
+        public void NetReadFrom(IBitReader bitStreamReader, ref BitStream bitStream)
         {
             if (NetSchema == null)
             {
@@ -65,7 +65,7 @@ namespace EchoSync.Replication
             foreach (NetPropertyInfo property in NetSchema.Properties)
             {
                 //Read the value
-                var value = 0;
+                var value = bitStreamReader.Read(property.Property.PropertyType, ref bitStream);
                 property.Setter(this, value);
             }
         }
