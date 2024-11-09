@@ -33,6 +33,7 @@ linkingContext.RegisterNetClass<Character>(Character.Factory());
 var engine = new Engine(60);
 var world = new World();
 engine.AddTickable(world);
+ServiceLocator.Provide<IWorld>(world);
 
 using EchoServer server = new EchoServer(new LiteNetLibServer(9050), new ServerRules(world));
 engine.AddTickable(server);
