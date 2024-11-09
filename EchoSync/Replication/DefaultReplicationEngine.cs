@@ -1,10 +1,10 @@
 ﻿namespace EchoSync.Replication
 {
-    public class ReplicationEngine : IReplicationEngine
+    public class DefaultReplicationEngine : IReplicationEngine
     {
         private readonly bool _authoritative;
         
-        public ReplicationEngine(bool authoritative)
+        public DefaultReplicationEngine(bool authoritative)
         {
             _authoritative = authoritative;
         }

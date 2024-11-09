@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EchoSync.Replication;
 
 namespace EchoSync.Utils
 {
@@ -25,6 +26,13 @@ namespace EchoSync.Utils
             }
 
             return (T)service;
+        }
+        
+        public static void InitializeDefaultServices(bool authoritative = true)
+        {
+            Provide<IObjectIdGenerator>(new DefaultObjectIdGenerator());
+            Provide<ILinkingContext>(new DefaultLinkingContext());
+            Provide<IReplicationEngine>(new DefaultReplicationEngine(authoritative));
         }
     }
 }
