@@ -19,8 +19,9 @@ namespace EchoSync.Replication.Server
         
         public IServerRules ServerRules { get; }
 
-        private List<NetObject> _netObjects = new List<NetObject>();
-
+        private readonly List<NetObject> _netObjects = new List<NetObject>();
+        private readonly List<uint> _destroyedNetObjects = new List<uint>();
+        
         public EchoServer(IServer server, IServerRules rules)
         {
             _server = server;
@@ -84,8 +85,19 @@ namespace EchoSync.Replication.Server
             Span<byte> snapshotBuffer = stackalloc byte[1024];
             var snapshotStream = new BitStream(snapshotBuffer);
             var snapshotWriter = new EchoBitStream();
+            //Write the frame number
             snapshotWriter.Write<uint>(ref snapshotStream, _frameNumber);
+            //Write the number of destroyed objects
+            snapshotWriter.Write<int>(ref snapshotStream, _destroyedNetObjects.Count);
+            //Write the destroyed objects identifiers
+            foreach (var destroyedNetObject in _destroyedNetObjects)
+            {
+                snapshotWriter.Write<uint>(ref snapshotStream, destroyedNetObject);
+            }
+            _destroyedNetObjects.Clear();
             
+            //Write all the net objects
+            snapshotWriter.Write<int>(ref snapshotStream, _netObjects.Count);
             foreach (var netObject in _netObjects)
             {
                 netObject.NetWriteTo(snapshotWriter, ref snapshotStream);
@@ -106,6 +118,7 @@ namespace EchoSync.Replication.Server
 
         public void UnregisterNetObject(NetObject netObject)
         {
+            _destroyedNetObjects.Add(netObject.ObjectId);
             _netObjects.Remove(netObject);
         }
 

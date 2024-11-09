@@ -25,10 +25,19 @@ EchoBitStream.RegisterType<Vector3>(
     }
 );
 
+ILinkingContext linkingContext = ServiceLocator.Get<ILinkingContext>();
+linkingContext.RegisterNetClass<Character>(Character.Factory());
+
+var engine = new Engine(60);
+var world = new World();
+engine.AddTickable(world);
+
 using EchoClient client = new EchoClient(new LiteNetLibClient("127.0.0.1", 9050), "key");
 ServiceLocator.Provide<IReplicationEngine>(client);
-while (!Console.KeyAvailable)
-{
-    client.Tick(0.015f);
-    Thread.Sleep(15);
-}
+engine.AddTickable(client);
+
+Thread engineThread = new Thread(engine.Run);
+engineThread.Start();
+Console.ReadLine();
+engine.ShouldStop = true;
+engineThread.Join();

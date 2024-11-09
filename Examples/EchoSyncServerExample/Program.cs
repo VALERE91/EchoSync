@@ -27,6 +27,9 @@ EchoBitStream.RegisterType<Vector3>(
 
 ServiceLocator.InitializeDefaultServices();
 
+ILinkingContext linkingContext = ServiceLocator.Get<ILinkingContext>();
+linkingContext.RegisterNetClass<Character>(Character.Factory());
+
 var engine = new Engine(60);
 var world = new World();
 engine.AddTickable(world);

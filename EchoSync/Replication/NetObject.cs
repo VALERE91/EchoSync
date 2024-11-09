@@ -44,13 +44,8 @@ namespace EchoSync.Replication
     {
         public static NetSchema? NetSchema { get; private set; }
 
-        protected NetObject(Func<NetObject<T>> factory)
+        protected NetObject(Func<uint, NetObject<T>> factory)
         {
-            if (!HasAuthority())
-            {
-                throw new NotImplementedException("Predictive spawning is not supported yet");
-            }
-            
             var linkingContext = ServiceLocator.Get<ILinkingContext>();
             ClassId = linkingContext.RegisterNetClass<T>(factory);
             
@@ -62,6 +57,12 @@ namespace EchoSync.Replication
             NetSchema ??= NetSchemaBuilder.CreateSchema<T>();
         }
 
+        protected NetObject(uint objectId)
+        {
+            ObjectId = objectId;
+            NetSchema ??= NetSchemaBuilder.CreateSchema<T>();
+        }
+        
         public override void NetWriteTo(IBitWriter bitStreamWriter, ref BitStream bitStream)
         {
             base.NetWriteTo(bitStreamWriter, ref bitStream);

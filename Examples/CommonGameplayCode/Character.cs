@@ -22,13 +22,18 @@ public class Character : NetObject<Character>, IWorldObject
     [NetProperty]
     public Vector3 Position { get; protected set; }
     
-    private static readonly Func<NetObject<Character>> Factory = () => new Character();
+    public static Func<uint, NetObject<Character>> Factory() => (uint objectId) => new Character(objectId);
     
-    public Character() : base(Factory)
+    public Character() : base(Factory())
     {
         Console.WriteLine("Character created");
     }
 
+    public Character(uint objectId) : base(objectId)
+    {
+        Console.WriteLine("Character created from Linking Context");
+    }
+    
     public void Tick(float deltaTimeSeconds)
     {
         // Update character logic here
