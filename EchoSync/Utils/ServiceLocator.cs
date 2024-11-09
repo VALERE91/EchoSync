@@ -28,11 +28,10 @@ namespace EchoSync.Utils
             return (T)service;
         }
         
-        public static void InitializeDefaultServices(bool authoritative = true)
+        public static void InitializeDefaultServices()
         {
             Provide<IObjectIdGenerator>(new DefaultObjectIdGenerator());
             Provide<ILinkingContext>(new DefaultLinkingContext());
-            Provide<IReplicationEngine>(new DefaultReplicationEngine(authoritative));
         }
     }
 }

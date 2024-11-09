@@ -1,20 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EchoSync.Replication;
 using EchoSync.Transport;
+using EchoSync.Utils;
 
-namespace EchoSync
+namespace EchoSync.Replication
 {
-    public class EchoServer : IDisposable, ITickable
+    public class EchoServer : IDisposable, ITickable, IReplicationEngine
     {
         private readonly IServer _server;
 
-        private Dictionary<Guid, IPeer> _peers;
-        
-        public EchoServer(IServer server)
+        private readonly Dictionary<Guid, IPeer> _peers;
+
+        public IServerRules ServerRules { get; }
+
+        public EchoServer(IServer server, IServerRules rules)
         {
             _server = server;
             _peers = new Dictionary<Guid, IPeer>();
+            
+            ServerRules = rules;
             
             _server.OnConnectionRequest += ConnectionRequestHandler;
             _server.OnClientConnected += ClientConnectedHandler;
@@ -67,6 +73,11 @@ namespace EchoSync
                 peer.Receiver.PopLatest(0);
             }
             _server.Tick(deltaTimeSeconds);
+        }
+
+        public bool HasAuthority()
+        {
+            return true;
         }
     }
 }

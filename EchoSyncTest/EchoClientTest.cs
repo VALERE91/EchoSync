@@ -1,4 +1,5 @@
 using EchoSync;
+using EchoSync.Replication;
 using EchoSyncTest.Mocks;
 
 namespace EchoSyncTest;
