@@ -56,6 +56,13 @@ namespace EchoSync.Serialization
 
         public ReadOnlySpan<byte> ReadBytes(int byteCount)
         {
+            if (BitPosition == 8)
+            {
+                BytePosition++;
+                BitPosition = 0;
+                if (BytePosition >= Buffer.Length)
+                    throw new IndexOutOfRangeException("Buffer overflow while reading.");
+            }
             ReadOnlySpan<byte> Data = Buffer.Slice(BytePosition, byteCount);
             BytePosition += byteCount;
             BitPosition = 0;

@@ -48,11 +48,17 @@ namespace EchoSync.Serialization
                     bitStream.WriteBits((uint)i, 32);
                     break;
                 case float f:
-                    WriteBytes(ref bitStream, BitConverter.GetBytes(f));
+                {
+                    int quantized = (int)Math.Truncate(f * 1000);
+                    WriteBytes(ref bitStream, BitConverter.GetBytes(quantized));
                     break;
+                }
                 case double d:
-                    WriteBytes(ref bitStream, BitConverter.GetBytes(d));
+                {
+                    long quantized = (long)Math.Truncate(d * 1000);
+                    WriteBytes(ref bitStream, BitConverter.GetBytes(quantized));
                     break;
+                }
                 case char c:
                     bitStream.WriteBits(c, 16);
                     break;
@@ -83,11 +89,13 @@ namespace EchoSync.Serialization
             }
             else if (type == typeof(float))
             {
-                WriteBytes(ref bitStream, BitConverter.GetBytes((float)value));
+                int quantized = (int)Math.Truncate((float)value * 1000);
+                WriteBytes(ref bitStream, BitConverter.GetBytes(quantized));
             }
             else if (type == typeof(double))
             {
-                WriteBytes(ref bitStream, BitConverter.GetBytes((double)value));
+                long quantized = (long)Math.Truncate((float)value * 1000);
+                WriteBytes(ref bitStream, BitConverter.GetBytes(quantized));
             }
             else if (type == typeof(char))
             {
@@ -117,9 +125,9 @@ namespace EchoSync.Serialization
             if (typeof(T) == typeof(int))
                 return (T)(object)bitStream.ReadBits(32);
             if (typeof(T) == typeof(float))
-                return (T)(object)BitConverter.ToSingle(ReadBytes(ref bitStream, 4));
+                return (T)(object)(BitConverter.ToInt32(ReadBytes(ref bitStream, 4))/1000f);
             if (typeof(T) == typeof(double))
-                return (T)(object)BitConverter.ToDouble(ReadBytes(ref bitStream, 8));
+                return (T)(object)(BitConverter.ToInt64(ReadBytes(ref bitStream, 8))/1000.0);
             if (typeof(T) == typeof(char))
                 return (T)(object)(char)bitStream.ReadBits(16);
             if (typeof(T) == typeof(uint))
@@ -141,13 +149,13 @@ namespace EchoSync.Serialization
             if (type == typeof(int))
                 return bitStream.ReadBits(32);
             if (type == typeof(float))
-                return BitConverter.ToSingle(ReadBytes(ref bitStream, 4));
+                return BitConverter.ToInt32(ReadBytes(ref bitStream, 4))/1000f;
             if (type == typeof(double))
-                return BitConverter.ToDouble(ReadBytes(ref bitStream, 8));
+                return BitConverter.ToInt64(ReadBytes(ref bitStream, 8))/1000.0;
             if (type == typeof(char))
                 return (char)bitStream.ReadBits(16);
             if (type == typeof(uint))
-                return (uint)bitStream.ReadBits(16);
+                return (uint)bitStream.ReadBits(32);
 
             throw new NotSupportedException($"Type {type} is not supported.");
         }

@@ -36,7 +36,7 @@ namespace EchoSync.Replication
 
         public virtual void NetReadFrom(IBitReader bitStreamReader, ref BitStream bitStream)
         {
-            
+            //Those are read by the replication engine
         }
     }
     

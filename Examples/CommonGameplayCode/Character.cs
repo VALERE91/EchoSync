@@ -15,10 +15,10 @@ public struct Vector3
 public class Character : NetObject<Character>, IWorldObject
 {
     [NetProperty] 
-    public float Health { get; protected set; }
+    public uint Health { get; protected set; }
 
     [NetProperty]
-    public float Mana { get; protected set; }
+    public uint Mana { get; protected set; }
     
     [NetProperty]
     public Vector3 Position { get; protected set; }
@@ -60,6 +60,16 @@ public class Character : NetObject<Character>, IWorldObject
             Y = Position.Y + _speed.Y * deltaTimeSeconds, 
             Z = Position.Z + _speed.Z * deltaTimeSeconds
         };
+
+        var rand = new Random();
+        Health = (uint)rand.Next(0, 10);
+        Mana = (uint)rand.Next(0, 10);
+        
+        Console.WriteLine("Health: {3} | Mana : {4} | Position: {0}, {1}, {2}", Position.X, 
+            Position.Y, 
+            Position.Z, 
+            Health, 
+            Mana);
     }
 
     public void Start()
