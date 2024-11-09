@@ -25,8 +25,8 @@ namespace EchoSync.Replication.Client
             {
                 if(_client.Receiver.PeekLatest(0, out var data))
                 {
-                    var message = Encoding.UTF8.GetString(data);
-                    Console.WriteLine($"Received snapshot");
+                    uint frameNumber = BitConverter.ToUInt32(data.ToArray(), 0);
+                    Console.WriteLine($"Received snapshot {frameNumber}");
                     _client.Receiver.PopLatest(0);
                 }
             }

@@ -14,6 +14,9 @@ namespace EchoSync.Replication.Server
         private readonly Dictionary<Guid, int> _peerPlayer;
         private int _nextPlayerId = 0;
         private readonly Dictionary<int, Player> _players;
+
+        private uint _frameNumber = 0;
+        
         public IServerRules ServerRules { get; }
 
         private List<NetObject> _netObjects = new List<NetObject>();
@@ -72,6 +75,8 @@ namespace EchoSync.Replication.Server
 
         public void Tick(float deltaTimeSeconds)
         {
+            _frameNumber++;
+            
             // Tick the server
             _server.Tick(deltaTimeSeconds);
 
@@ -79,6 +84,8 @@ namespace EchoSync.Replication.Server
             Span<byte> snapshotBuffer = stackalloc byte[1024];
             var snapshotStream = new BitStream(snapshotBuffer);
             var snapshotWriter = new EchoBitStream();
+            snapshotWriter.Write<uint>(ref snapshotStream, _frameNumber);
+            
             foreach (var netObject in _netObjects)
             {
                 netObject.NetWriteTo(snapshotWriter, ref snapshotStream);
