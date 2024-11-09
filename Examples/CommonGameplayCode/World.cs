@@ -2,7 +2,13 @@
 
 namespace CommonGameplayCode;
 
-public class World : ITickable
+public interface IWorld : ITickable
+{
+    T SpawnObject<T>() where T: IWorldObject, new();
+    void UnspawnObject(IWorldObject obj);
+}
+
+public class World : IWorld
 {
     private readonly List<IWorldObject> _objects = [];
     

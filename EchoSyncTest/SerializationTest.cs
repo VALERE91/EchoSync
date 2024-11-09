@@ -59,6 +59,7 @@ public class SerializationTest
     [Test]
     public void CanSerializeVector3()
     {
+        Random rand = new Random();
         var vector = new Vector3 { X = 1.0f, Y = 2.0f, Z = 3.0f };
         
         Span<byte> buffer = stackalloc byte[64];
