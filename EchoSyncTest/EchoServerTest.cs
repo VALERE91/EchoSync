@@ -1,5 +1,6 @@
 ﻿using EchoSync;
 using EchoSync.Replication;
+using EchoSync.Replication.Server;
 using EchoSyncTest.Mocks;
 
 namespace EchoSyncTest;

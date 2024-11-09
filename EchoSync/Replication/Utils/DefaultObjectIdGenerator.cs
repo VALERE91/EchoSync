@@ -1,4 +1,4 @@
-﻿namespace EchoSync.Replication
+﻿namespace EchoSync.Replication.Utils
 {
     public class DefaultObjectIdGenerator : IObjectIdGenerator
     {

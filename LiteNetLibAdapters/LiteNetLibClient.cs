@@ -25,15 +25,19 @@ public class LiteNetLibClient : IClient
         
         var listener = new EventBasedNetListener();
         _client = new NetManager(listener);
+        _client.EnableStatistics = true;
         _client.Start();
         
         Sender = new ClientSender(_client);
         Receiver = new ClientReceiver(listener);
     }
     
-    public void Connect()
+    public void Connect(object connectionKey)
     {
-        _client.Connect(_host, _port, "key");
+        if (connectionKey is string key)
+        {
+            _client.Connect(_host, _port, key);
+        }
     }
 
     public void Dispose()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EchoSync.Replication;
+using EchoSync.Replication.Utils;
 
 namespace EchoSync.Utils
 {

@@ -11,7 +11,7 @@ public struct Vector3
     public float Z;
 }
 
-public class Character : NetObject<Character>, ITickable
+public class Character : NetObject<Character>, IWorldObject
 {
     [NetProperty] 
     public float Health { get; protected set; }
@@ -26,11 +26,16 @@ public class Character : NetObject<Character>, ITickable
     
     public Character() : base(Factory)
     {
-        
+        Console.WriteLine("Character created");
     }
 
     public void Tick(float deltaTimeSeconds)
     {
         // Update character logic here
+    }
+
+    public void Start()
+    {
+        // Initialize character here
     }
 }

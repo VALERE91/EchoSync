@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using EchoSync.Utils;
 
-namespace EchoSync.Replication
+namespace EchoSync.Replication.Utils
 {
     public class DefaultLinkingContext : ILinkingContext
     {
