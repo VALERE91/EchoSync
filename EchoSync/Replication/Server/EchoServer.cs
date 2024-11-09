@@ -59,8 +59,8 @@ namespace EchoSync.Replication.Server
             _peers.Add(peer.Identifier, peer);
             _players.Add(player.PlayerId, player);
             _peerPlayer.Add(peer.Identifier, player.PlayerId);
-            ServerRules.PostLogin(player);
-            ServerRules.SpawnPlayer(player);
+            var playerController = ServerRules.PostLogin(player);
+            ServerRules.SpawnPlayer(playerController);
         }
 
         private bool ConnectionRequestHandler(string ip, int port, Span<byte> buffer)

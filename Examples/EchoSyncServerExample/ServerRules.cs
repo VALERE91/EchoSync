@@ -1,4 +1,5 @@
 ﻿using CommonGameplayCode;
+using EchoSync.Inputs;
 using EchoSync.Replication;
 using EchoSync.Replication.Server;
 
@@ -13,14 +14,21 @@ public class ServerRules(World world) : IServerRules
         return true;
     }
 
-    public void PostLogin(Player player)
+    public PlayerController PostLogin(Player player)
     {
-        
+        var playerController = new GamePlayerController();
+        playerController.SetPlayer(player);
+        return playerController;
     }
 
-    public void SpawnPlayer(Player player)
+    public void SpawnPlayer(PlayerController playerController)
     {
-        _players.Add(player.PlayerId, world.SpawnObject<Character>());
+        if (playerController.Player == null)
+        {
+            return;
+        }
+        
+        _players.Add(playerController.Player.PlayerId, world.SpawnObject<Character>());
     }
 
     public void DespawnPlayer(Player player)
