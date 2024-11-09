@@ -60,7 +60,7 @@ public class SerializationTest
     public void CanSerializeVector3()
     {
         Random rand = new Random();
-        var vector = new Vector3 { X = (float)rand.NextDouble(), Y = (float)rand.NextDouble(), Z = (float)rand.NextDouble() };
+        var vector = new Vector3 { X = 1.0f, Y = 2.0f, Z = 3.0f };
         
         Span<byte> buffer = stackalloc byte[64];
         

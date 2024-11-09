@@ -1,6 +1,7 @@
 using EchoSync;
 using EchoSync.Replication;
 using EchoSync.Replication.Client;
+using EchoSync.Utils;
 using EchoSyncTest.Mocks;
 
 namespace EchoSyncTest;
@@ -12,6 +13,7 @@ public class EchoClientTests
     [SetUp]
     public void Setup()
     {
+        ServiceLocator.InitializeDefaultServices();
         _echoClient = new EchoClient(new ClientMock(), "key");    
     }
 
