@@ -1,4 +1,5 @@
-﻿using EchoSync.Transport;
+﻿using System;
+using EchoSync.Transport;
 using LiteNetLib;
 using LiteNetLibAdapters.Receivers;
 using LiteNetLibAdapters.Senders;

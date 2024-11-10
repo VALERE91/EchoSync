@@ -1,4 +1,6 @@
-﻿using EchoSync.Transport;
+﻿using System;
+using System.Collections.Generic;
+using EchoSync.Transport;
 using LiteNetLib;
 
 namespace LiteNetLibAdapters
@@ -13,7 +15,7 @@ namespace LiteNetLibAdapters
         private readonly EventBasedNetListener _listener;
         private readonly NetManager _server;
 
-        private readonly Dictionary<int, LiteNetLibPeer> _peers = new();
+        private readonly Dictionary<int, LiteNetLibPeer> _peers = new Dictionary<int, LiteNetLibPeer>();
     
         public LiteNetLibServer(int port)
         {
