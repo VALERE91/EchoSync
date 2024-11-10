@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using EchoSync.Inputs;
+using EchoSync.Messages;
 using EchoSync.Serialization;
 using EchoSync.Transport;
 
@@ -86,47 +87,47 @@ namespace EchoSync.Replication.Server
             _server.Tick(deltaTimeSeconds);
 
             // Create the SnapShot
-            Span<byte> snapshotBuffer = stackalloc byte[1024];
-            var snapshotStream = new BitStream(snapshotBuffer);
-            var snapshotWriter = new EchoBitStream();
-            //Write the frame number
-            snapshotWriter.Write<uint>(ref snapshotStream, _frameNumber);
-            //Write the number of destroyed objects
-            snapshotWriter.Write<int>(ref snapshotStream, _destroyedNetObjects.Count);
-            //Write the destroyed objects identifiers
-            foreach (var destroyedNetObject in _destroyedNetObjects)
+            SnapshotMessage snapshot = new SnapshotMessage
             {
-                snapshotWriter.Write<uint>(ref snapshotStream, destroyedNetObject);
-            }
-            _destroyedNetObjects.Clear();
+                Frame = _frameNumber,
+                ObjectDeletedCount = _destroyedNetObjects.Count,
+                DeletedObjects = _destroyedNetObjects,
+                ObjectCount = _netObjects.Count
+            };
             
-            //Write all the net objects
-            snapshotWriter.Write<int>(ref snapshotStream, _netObjects.Count);
-            foreach (var netObject in _netObjects)
-            {
-                netObject.NetWriteTo(snapshotWriter, ref snapshotStream);
-            }
-            ReadOnlySpan<byte> dataToSend = snapshotBuffer.Slice(0, snapshotStream.BytePosition + 1);
+            Span<byte> snapshotBuffer = stackalloc byte[1024];
+            ReadOnlySpan<byte> dataToSend = snapshot.Serialize(ref snapshotBuffer, _destroyedNetObjects, _netObjects);
             
             //Send it to every peer
+            //TODO we need to be able to select which peer needs it
             foreach (var (_, peer) in _peers)
             {
                 peer.Sender.SendPacket(0, Reliability.Unreliable, dataToSend);
             }
             
-            //Read inputs on Channel 1
+            //Read inputs and RPCs
             foreach (var (_, peer) in _peers)
             {
-                if (!peer.Receiver.HasData(1)) continue;
-                if (!peer.Receiver.PeekLatest(1, out var data)) continue;
+                if (!peer.Receiver.HasData(0)) continue;
+                if (!peer.Receiver.PeekLatest(0, out var data)) continue;
                 
                 var receivedData = data.ToArray();
-                if (_peerPlayer.TryGetValue(peer.Identifier, out var playerId) 
-                    && _playersControllers.TryGetValue(playerId, out var playerController))
+                
+                MessageTypes messageType = (MessageTypes)receivedData[0];
+                if (messageType == MessageTypes.Input)
                 {
-                    playerController.InputReceived(receivedData);
+                    if (_peerPlayer.TryGetValue(peer.Identifier, out var playerId) 
+                        && _playersControllers.TryGetValue(playerId, out var playerController))
+                    {
+                        playerController.InputReceived(receivedData);
+                    }
                 }
-                peer.Receiver.PopLatest(1);
+                else if (messageType == MessageTypes.Rpc)
+                {
+                    //TODO
+                }
+                
+                peer.Receiver.PopLatest(0);
             }
             
             //Tick all the players

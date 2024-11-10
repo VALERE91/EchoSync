@@ -41,6 +41,9 @@ namespace EchoSync.Serialization
             // Built-in types
             switch (value)
             {
+                case byte by:
+                    bitStream.WriteBits(by, 8);
+                    break;
                 case bool b:
                     bitStream.WriteBits(b ? 1u : 0u, 1);
                     break;
@@ -83,7 +86,11 @@ namespace EchoSync.Serialization
             }
 
             // Built-in types
-            if (type == typeof(bool))
+            if (type == typeof(byte))
+            {
+                bitStream.WriteBits((byte)value, 8);
+            }
+            else if (type == typeof(bool))
             {
                 bitStream.WriteBits((bool)value ? 1u : 0u, 1);
             }
@@ -130,6 +137,8 @@ namespace EchoSync.Serialization
             }
 
             // Built-in types
+            if (typeof(T) == typeof(byte))
+                return (T)(object)bitStream.ReadBytes(1)[0];
             if (typeof(T) == typeof(bool))
                 return (T)(object)(bitStream.ReadBits(1) != 0);
             if (typeof(T) == typeof(int))
@@ -159,6 +168,8 @@ namespace EchoSync.Serialization
             }
 
             // Built-in types
+            if (type == typeof(byte))
+                return bitStream.ReadBytes(1)[0];
             if (type == typeof(bool))
                 return bitStream.ReadBits(1) != 0;
             if (type == typeof(int))

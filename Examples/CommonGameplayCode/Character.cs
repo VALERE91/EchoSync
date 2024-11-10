@@ -2,6 +2,7 @@
 using EchoSync.Inputs;
 using EchoSync.Replication;
 using EchoSync.Replication.Server;
+using EchoSync.RPC;
 using EchoSync.Serialization;
 using EchoSync.Utils;
 
@@ -49,6 +50,16 @@ public class Character : NetObject<Character>, IWorldObject
         _controller = controller;
         Console.WriteLine("Character created from Linking Context");
     }
+
+    [ServerRpc]
+    public void Shoot(Vector3 direction)
+    {
+        if (!HasAuthority())
+        {
+            throw new Exception("Only the server can shoot");
+        }
+        Console.WriteLine("Server shoot");
+    }
     
     public void Tick(float deltaTimeSeconds)
     {
@@ -57,6 +68,12 @@ public class Character : NetObject<Character>, IWorldObject
         {
             _controller.AddInput("move_x", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
             _controller.AddInput("move_y", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
+
+            bool shoot = true;
+            if (shoot)
+            {
+                //_controller.CallRpc("Shoot", new Vector3 { X = rand.NextSingle(), Y = rand.NextSingle(), Z = rand.NextSingle() });
+            }
             
             Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
             
