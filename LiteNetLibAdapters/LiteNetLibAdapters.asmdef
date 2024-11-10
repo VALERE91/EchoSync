@@ -1,6 +1,9 @@
 {
     "name": "LiteNetLibAdapters",
-    "references": [],
+    "references": [
+        "EchoSync",
+        "LiteNetLib"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
