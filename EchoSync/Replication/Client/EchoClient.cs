@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EchoSync.Messages;
 using EchoSync.Serialization;
 using EchoSync.Transport;
 using EchoSync.Utils;
@@ -36,31 +37,17 @@ namespace EchoSync.Replication.Client
             {
                 if(_client.Receiver.PeekLatest(0, out var data))
                 {
-                    var receivedData = data.ToArray();
-                    var snapshotBitStream = new BitStream(receivedData);
-                    var snapshotReader = new EchoBitStream();
-
-                    var frameNumber = snapshotReader.Read<uint>(ref snapshotBitStream);
-                    var numberOfObjectDestroyed = snapshotReader.Read<int>(ref snapshotBitStream);
-                    for (var i = 0; i < numberOfObjectDestroyed; i++)
-                    {
-                        var objectId = snapshotReader.Read<uint>(ref snapshotBitStream);
-                        Console.WriteLine($"Received destroy object {objectId}");
-                    }
-                    var numberOfObject = snapshotReader.Read<int>(ref snapshotBitStream);
-                    for (var i = 0; i < numberOfObject; i++)
-                    {
-                        var classId = snapshotReader.Read<int>(ref snapshotBitStream);
-                        var objectId = snapshotReader.Read<uint>(ref snapshotBitStream);
-                        
-                        if (!_trackedNetObjects.ContainsKey(objectId))
+                    Span<byte> receivedData = data.ToArray();
+                    
+                    SnapshotMessage snapshotMessage = new SnapshotMessage();
+                    snapshotMessage.Deserialize(ref receivedData, _linkingContext,
+                        objectId => !_trackedNetObjects.ContainsKey(objectId),
+                        (objectId, netObject) =>
                         {
-                            var netObject = _linkingContext.CreateNetObject(classId, objectId);
                             _trackedNetObjects.Add(objectId, netObject);
-                        }
-                        
-                        _trackedNetObjects[objectId].NetReadFrom(snapshotReader, ref snapshotBitStream);
-                    }
+                        },
+                        objectId => _trackedNetObjects[objectId]);
+                    
                     _client.Receiver.PopLatest(0);
                 }
             }

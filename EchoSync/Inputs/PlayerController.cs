@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EchoSync.Messages;
 using EchoSync.Replication;
 using EchoSync.Replication.Server;
 using EchoSync.Serialization;
@@ -63,10 +64,20 @@ namespace EchoSync.Inputs
             Player = player;
         }
 
-        public void InputReceived(Span<byte> inputs)
+        public void InputReceived(ref Span<byte> inputs)
         {
             //Deserialize the input frame
-            DeserializeInputs(inputs);
+            InputMessage message = new InputMessage();
+            message.Deserialize(ref inputs);
+
+            foreach (var inputFrame in message.Frames)
+            {
+                if (_inputFrameHistory.Any(frame => frame.FrameNumber == inputFrame.FrameNumber))
+                {
+                    continue;
+                }
+                _inputFrameHistory.AddLast(inputFrame);   
+            }
         }
 
         public void AddInputHandler(string inputName, OnInputFiredDelegate onInputFired)
@@ -130,7 +141,11 @@ namespace EchoSync.Inputs
                 }
                 //Create and send the input frame
                 Span<byte> buffer = stackalloc byte[1000];
-                buffer = SerializeInputs(ref buffer);
+                InputMessage message = new InputMessage
+                {
+                    FrameNumber = _inputFrameHistory.Count
+                };
+                buffer = message.Serialize(ref buffer, _inputFrameHistory.ToList());
                 if (Player == null)
                 {
                     throw new Exception("PLAYER IS NULL");

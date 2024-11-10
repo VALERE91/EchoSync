@@ -19,6 +19,6 @@ public class LiteNetLibPeer(NetPeer peer) : IPeer
 
     public void QueueData(NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
     {
-        _peerReceiver.QueueData(reader, 1);
+        _peerReceiver.QueueData(reader, channel);
     }
 }

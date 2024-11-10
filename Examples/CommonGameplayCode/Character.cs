@@ -2,6 +2,7 @@
 using EchoSync.Inputs;
 using EchoSync.Replication;
 using EchoSync.Replication.Server;
+using EchoSync.RPC;
 using EchoSync.Serialization;
 using EchoSync.Utils;
 
@@ -26,6 +27,8 @@ public class Character : NetObject<Character>, IWorldObject
     
     [NetProperty]
     public Vector3 Position { get; protected set; }
+
+    private float _timeSinceShot = 0;
     
     private Vector3 _speed = new Vector3 { X = 0, Y = 0, Z = 0 };
     
@@ -49,6 +52,16 @@ public class Character : NetObject<Character>, IWorldObject
         _controller = controller;
         Console.WriteLine("Character created from Linking Context");
     }
+
+    [ServerRpc]
+    public void Shoot(Vector3 direction)
+    {
+        if (!HasAuthority())
+        {
+            throw new Exception("Only the server can shoot");
+        }
+        Console.WriteLine("Server shoot with direction: " + direction.X + ", " + direction.Y + ", " + direction.Z);
+    }
     
     public void Tick(float deltaTimeSeconds)
     {
@@ -57,8 +70,17 @@ public class Character : NetObject<Character>, IWorldObject
         {
             _controller.AddInput("move_x", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
             _controller.AddInput("move_y", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
+
+            _timeSinceShot += deltaTimeSeconds;
+            if (_timeSinceShot > 1)
+            {
+                Vector3 direction = new Vector3 { X = rand.NextSingle(), Y = rand.NextSingle(), Z = rand.NextSingle() };
+                CallRpc("Shoot", direction);
+                _timeSinceShot = 0;
+                Console.WriteLine("Client shoot with direction: " + direction.X + ", " + direction.Y + ", " + direction.Z);
+            }
             
-            Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
+            //Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
             
             return;
         }
