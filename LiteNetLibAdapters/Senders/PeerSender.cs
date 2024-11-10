@@ -1,23 +1,24 @@
 ﻿using EchoSync.Transport;
 using LiteNetLib;
 
-namespace LiteNetLibAdapters.Senders;
-
-public class PeerSender(NetPeer peer) : IPacketSender
+namespace LiteNetLibAdapters.Senders
 {
-    public void SendPacket(int channel, Reliability reliability, ReadOnlySpan<byte> data)
+    public class PeerSender(NetPeer peer) : IPacketSender
     {
-        switch (reliability)
+        public void SendPacket(int channel, Reliability reliability, ReadOnlySpan<byte> data)
         {
-            case Reliability.Unreliable:
-                peer.Send(data, DeliveryMethod.Unreliable);
-                return;
-            case Reliability.Sequenced:
-                peer.Send(data, DeliveryMethod.Sequenced);
-                return;
-            case Reliability.Reliable:
-                peer.Send(data, DeliveryMethod.ReliableOrdered);
-                return;
+            switch (reliability)
+            {
+                case Reliability.Unreliable:
+                    peer.Send(data, DeliveryMethod.Unreliable);
+                    return;
+                case Reliability.Sequenced:
+                    peer.Send(data, DeliveryMethod.Sequenced);
+                    return;
+                case Reliability.Reliable:
+                    peer.Send(data, DeliveryMethod.ReliableOrdered);
+                    return;
+            }
         }
     }
 }

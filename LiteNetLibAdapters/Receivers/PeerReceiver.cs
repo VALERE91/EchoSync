@@ -2,70 +2,71 @@
 using EchoSync.Transport;
 using LiteNetLib;
 
-namespace LiteNetLibAdapters.Receivers;
-
-public class PeerReceiver : IPacketReceiver
+namespace LiteNetLibAdapters.Receivers
 {
-    private readonly Dictionary<byte, Queue<NetPacketReader>> _packets = new();
+    public class PeerReceiver : IPacketReceiver
+    {
+        private readonly Dictionary<byte, Queue<NetPacketReader>> _packets = new();
     
-    public void QueueData(NetPacketReader reader, byte channel)
-    {
-        if (!_packets.TryGetValue(channel, out var queue))
+        public void QueueData(NetPacketReader reader, byte channel)
         {
-            queue = new Queue<NetPacketReader>();
-            _packets.Add(channel, queue);
-        }
+            if (!_packets.TryGetValue(channel, out var queue))
+            {
+                queue = new Queue<NetPacketReader>();
+                _packets.Add(channel, queue);
+            }
 
-        queue.Enqueue(reader);
-    }
+            queue.Enqueue(reader);
+        }
     
-    public bool HasData(int channel)
-    {
-        if (channel > byte.MaxValue)
+        public bool HasData(int channel)
         {
-            return false;
-        }
+            if (channel > byte.MaxValue)
+            {
+                return false;
+            }
         
-        if (!_packets.ContainsKey((byte)channel))
-        {
-            return false;
+            if (!_packets.ContainsKey((byte)channel))
+            {
+                return false;
+            }
+
+            return _packets[(byte)channel].Count > 0;
         }
 
-        return _packets[(byte)channel].Count > 0;
-    }
-
-    public bool PeekLatest(int channel, out ReadOnlySpan<byte> data)
-    {
-        if (!_packets.TryGetValue((byte)channel, out var readers))
+        public bool PeekLatest(int channel, out ReadOnlySpan<byte> data)
         {
-            data = ReadOnlySpan<byte>.Empty;
-            return false;
-        }
+            if (!_packets.TryGetValue((byte)channel, out var readers))
+            {
+                data = ReadOnlySpan<byte>.Empty;
+                return false;
+            }
 
-        if (readers.Count <= 0)
-        {
-            data = ReadOnlySpan<byte>.Empty;
-            return false;
-        }
+            if (readers.Count <= 0)
+            {
+                data = ReadOnlySpan<byte>.Empty;
+                return false;
+            }
         
-        NetPacketReader packet = readers.Peek();
-        data = packet.GetRemainingBytes();
-        return true;
-    }
-
-    public void PopLatest(int channel)
-    {
-        if (!_packets.TryGetValue((byte)channel, out var readers))
-        {
-            return;
+            NetPacketReader packet = readers.Peek();
+            data = packet.GetRemainingBytes();
+            return true;
         }
+
+        public void PopLatest(int channel)
+        {
+            if (!_packets.TryGetValue((byte)channel, out var readers))
+            {
+                return;
+            }
         
-        if (readers.Count <= 0)
-        {
-            return;
-        }
+            if (readers.Count <= 0)
+            {
+                return;
+            }
 
-        NetPacketReader packet = readers.Dequeue();
-        packet.Recycle();
+            NetPacketReader packet = readers.Dequeue();
+            packet.Recycle();
+        }
     }
 }
