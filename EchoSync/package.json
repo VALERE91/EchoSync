@@ -1,0 +1,11 @@
+{
+    "name": "io.gamedev4fun.echosync",
+    "version": "1.0.0",
+    "displayName": "EchoSync",
+    "description": "Simple replication library",
+    "unity": "2018.3",
+    "author": {
+        "name": "VALERE91",
+        "url": "https://github.com/VALERE91"
+    }
+}
