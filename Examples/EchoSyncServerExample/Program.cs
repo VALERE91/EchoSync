@@ -28,7 +28,6 @@ EchoBitStream.RegisterType<Vector3>(
 ServiceLocator.InitializeDefaultServices();
 
 ILinkingContext linkingContext = ServiceLocator.Get<ILinkingContext>();
-linkingContext.RegisterNetClass<GamePlayerController>(GamePlayerController.Factory);
 linkingContext.RegisterNetClass<Character>(Character.Factory());
 
 var engine = new Engine(60);

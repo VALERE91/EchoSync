@@ -65,6 +65,10 @@ namespace EchoSync.Serialization
                 case uint u:
                     bitStream.WriteBits((uint)u, 32);
                     break;
+                case string s:
+                    Write<int>(ref bitStream, s.Length);
+                    WriteBytes(ref bitStream, System.Text.Encoding.UTF8.GetBytes(s));
+                    break;
                 default:
                     throw new NotSupportedException($"Type {typeof(T)} is not supported.");
             }
@@ -105,6 +109,12 @@ namespace EchoSync.Serialization
             {
                 bitStream.WriteBits((uint)value, 32);
             }
+            else if (type == typeof(string))
+            {
+                var s = (string)value;
+                Write<int>(ref bitStream, s.Length);
+                WriteBytes(ref bitStream, System.Text.Encoding.UTF8.GetBytes(s));
+            }
             else
             {
                 throw new NotSupportedException($"Type {type} is not supported.");
@@ -132,6 +142,11 @@ namespace EchoSync.Serialization
                 return (T)(object)(char)bitStream.ReadBits(16);
             if (typeof(T) == typeof(uint))
                 return (T)(object)(uint)bitStream.ReadBits(32);
+            if(typeof(T) == typeof(string))
+            {
+                int length = Read<int>(ref bitStream);
+                return (T)(object)System.Text.Encoding.UTF8.GetString(ReadBytes(ref bitStream, length));
+            }
 
             throw new NotSupportedException($"Type {typeof(T)} is not supported.");
         }
@@ -156,6 +171,11 @@ namespace EchoSync.Serialization
                 return (char)bitStream.ReadBits(16);
             if (type == typeof(uint))
                 return (uint)bitStream.ReadBits(32);
+            if(type == typeof(string))
+            {
+                int length = Read<int>(ref bitStream);
+                return System.Text.Encoding.UTF8.GetString(ReadBytes(ref bitStream, length));
+            }
 
             throw new NotSupportedException($"Type {type} is not supported.");
         }

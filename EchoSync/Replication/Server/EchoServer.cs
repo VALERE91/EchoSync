@@ -126,5 +126,15 @@ namespace EchoSync.Replication.Server
         {
             return true;
         }
+
+        public uint GetFrameNumber()
+        {
+            return _frameNumber;
+        }
+
+        public FrameType GetFrameType()
+        {
+            return FrameType.Server;
+        }
     }
 }

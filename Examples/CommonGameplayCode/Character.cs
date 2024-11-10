@@ -28,7 +28,8 @@ public class Character : NetObject<Character>, IWorldObject
     public static Func<uint, NetObject<Character>> Factory() => (uint objectId) =>
     {
         IWorld world = ServiceLocator.Get<IWorld>();
-        return world.SpawnObject<Character>();;
+        var playerController = world.SpawnObject<GamePlayerController>();
+        return world.SpawnObject<Character>();
     };
     
     public Character() : base(Factory())
