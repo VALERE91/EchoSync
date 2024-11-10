@@ -1,5 +1,7 @@
 ﻿using EchoSync;
+using EchoSync.Inputs;
 using EchoSync.Replication;
+using EchoSync.Replication.Server;
 using EchoSync.Serialization;
 using EchoSync.Utils;
 
@@ -14,6 +16,8 @@ public struct Vector3
 
 public class Character : NetObject<Character>, IWorldObject
 {
+    private readonly PlayerController _controller;
+
     [NetProperty] 
     public uint Health { get; protected set; }
 
@@ -23,33 +27,39 @@ public class Character : NetObject<Character>, IWorldObject
     [NetProperty]
     public Vector3 Position { get; protected set; }
     
-    private Vector3 _speed = new Vector3 { X = 1, Y = 1, Z = 1 };
+    private Vector3 _speed = new Vector3 { X = 0, Y = 0, Z = 0 };
     
     public static Func<uint, NetObject<Character>> Factory() => (uint objectId) =>
     {
         IWorld world = ServiceLocator.Get<IWorld>();
-        return world.SpawnObject<Character>();;
+        var playerController = world.SpawnObject<GamePlayerController>()!;
+        IReplicationEngine replicationEngine = ServiceLocator.Get<IReplicationEngine>();
+        var player = new Player(0, replicationEngine.GetLocalPeer());
+        playerController.SetPlayer(player);
+        return world.SpawnObject<Character>(objectId, playerController)!;
     };
     
-    public Character() : base(Factory())
+    public Character(PlayerController controller) : base(Factory())
     {
-        Console.WriteLine("Character created");
+        _controller = controller;
     }
 
-    public Character(uint objectId) : base(objectId)
+    public Character(uint objectId, PlayerController controller) : base(objectId)
     {
+        _controller = controller;
         Console.WriteLine("Character created from Linking Context");
     }
     
     public void Tick(float deltaTimeSeconds)
     {
+        var rand = new Random();
         if (!HasAuthority())
         {
-            Console.WriteLine("Health: {3} | Mana : {4} | Position: {0}, {1}, {2}", Position.X, 
-                Position.Y, 
-                Position.Z, 
-                Health, 
-                Mana);
+            _controller.AddInput("move_x", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
+            _controller.AddInput("move_y", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
+            
+            Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
+            
             return;
         }
         
@@ -61,19 +71,22 @@ public class Character : NetObject<Character>, IWorldObject
             Z = Position.Z + _speed.Z * deltaTimeSeconds
         };
 
-        var rand = new Random();
         Health = (uint)rand.Next(0, 10);
         Mana = (uint)rand.Next(0, 10);
-        
-        Console.WriteLine("Health: {3} | Mana : {4} | Position: {0}, {1}, {2}", Position.X, 
-            Position.Y, 
-            Position.Z, 
-            Health, 
-            Mana);
     }
 
     public void Start()
     {
         // Initialize character here
+        _controller.AddInputHandler("move_x", (value) =>
+        {
+            if (value.Type != InputValueType.Number) return;
+            _speed.X += value.NumberValue;
+        });
+        _controller.AddInputHandler("move_y", (value) =>
+        {
+            if (value.Type != InputValueType.Number) return;
+            _speed.Y += value.NumberValue;
+        });
     }
 }

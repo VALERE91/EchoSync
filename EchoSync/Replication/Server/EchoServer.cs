@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EchoSync.Inputs;
 using EchoSync.Serialization;
 using EchoSync.Transport;
 
@@ -14,6 +15,7 @@ namespace EchoSync.Replication.Server
         private readonly Dictionary<Guid, int> _peerPlayer;
         private int _nextPlayerId = 0;
         private readonly Dictionary<int, Player> _players;
+        private readonly Dictionary<int, PlayerController> _playersControllers;
 
         private uint _frameNumber = 0;
         
@@ -28,6 +30,7 @@ namespace EchoSync.Replication.Server
             _peers = new Dictionary<Guid, IPeer>();
             _peerPlayer = new Dictionary<Guid, int>();
             _players = new Dictionary<int, Player>();
+            _playersControllers = new Dictionary<int, PlayerController>();
             
             ServerRules = rules;
             
@@ -59,8 +62,9 @@ namespace EchoSync.Replication.Server
             _peers.Add(peer.Identifier, peer);
             _players.Add(player.PlayerId, player);
             _peerPlayer.Add(peer.Identifier, player.PlayerId);
-            ServerRules.PostLogin(player);
-            ServerRules.SpawnPlayer(player);
+            var playerController = ServerRules.PostLogin(player);
+            _playersControllers.Add(player.PlayerId, playerController);
+            ServerRules.SpawnPlayer(playerController);
         }
 
         private bool ConnectionRequestHandler(string ip, int port, Span<byte> buffer)
@@ -109,6 +113,27 @@ namespace EchoSync.Replication.Server
             {
                 peer.Sender.SendPacket(0, Reliability.Unreliable, dataToSend);
             }
+            
+            //Read inputs on Channel 1
+            foreach (var (_, peer) in _peers)
+            {
+                if (!peer.Receiver.HasData(1)) continue;
+                if (!peer.Receiver.PeekLatest(1, out var data)) continue;
+                
+                var receivedData = data.ToArray();
+                if (_peerPlayer.TryGetValue(peer.Identifier, out var playerId) 
+                    && _playersControllers.TryGetValue(playerId, out var playerController))
+                {
+                    playerController.InputReceived(receivedData);
+                }
+                peer.Receiver.PopLatest(1);
+            }
+            
+            //Tick all the players
+            foreach (var (_, playerController) in _playersControllers)
+            {
+                playerController.Tick(deltaTimeSeconds);
+            }
         }
 
         public void RegisterNetObject(NetObject netObject)
@@ -125,6 +150,21 @@ namespace EchoSync.Replication.Server
         public bool HasAuthority()
         {
             return true;
+        }
+
+        public uint GetFrameNumber()
+        {
+            return _frameNumber;
+        }
+
+        public FrameType GetFrameType()
+        {
+            return FrameType.Server;
+        }
+
+        public IPeer GetLocalPeer()
+        {
+            throw new NotImplementedException("Server does not have a local peer");
         }
     }
 }

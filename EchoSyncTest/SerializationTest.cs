@@ -187,4 +187,22 @@ public class SerializationTest
         
         Assert.That(deserializedValue, Is.EqualTo(value));
     }
+    
+    [Test]
+    public void CanSerializeString()
+    {
+        var value = "Hello, World!";
+        
+        Span<byte> buffer = stackalloc byte[64];
+        
+        var writerBitStream = new BitStream(buffer);
+        var writer = new EchoBitStream();
+        writer.Write(ref writerBitStream, value);
+        
+        var readerBitStream = new BitStream(buffer);
+        var reader = new EchoBitStream();
+        var deserializedValue = reader.Read<string>(ref readerBitStream);
+        
+        Assert.That(deserializedValue, Is.EqualTo(value));
+    }
 }

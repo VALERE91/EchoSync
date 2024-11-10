@@ -1,12 +1,13 @@
 ﻿using System;
+using EchoSync.Inputs;
 
 namespace EchoSync.Replication.Server
 {
     public interface IServerRules
     {
         bool Login(Span<byte> buffer);
-        void PostLogin(Player player);
-        void SpawnPlayer(Player player);
+        PlayerController PostLogin(Player player);
+        void SpawnPlayer(PlayerController playerController);
         void DespawnPlayer(Player player);
     }
 }

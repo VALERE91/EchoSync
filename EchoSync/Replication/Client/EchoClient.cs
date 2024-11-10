@@ -15,6 +15,8 @@ namespace EchoSync.Replication.Client
         
         private ILinkingContext _linkingContext;
         
+        private uint _frameNumber = 0;
+        
         public EchoClient(IClient client, object connectionKey)
         {
             _client = client;
@@ -29,6 +31,7 @@ namespace EchoSync.Replication.Client
 
         public void Tick(float deltaTimeSeconds)
         {
+            _frameNumber++;
             if(_client.Receiver.HasData(0))
             {
                 if(_client.Receiver.PeekLatest(0, out var data))
@@ -37,25 +40,22 @@ namespace EchoSync.Replication.Client
                     var snapshotBitStream = new BitStream(receivedData);
                     var snapshotReader = new EchoBitStream();
 
-                    uint frameNumber = snapshotReader.Read<uint>(ref snapshotBitStream);
-                    Console.WriteLine($"Received snapshot {frameNumber}");
-                    int numberOfObjectDestroyed = snapshotReader.Read<int>(ref snapshotBitStream);
-                    for (int i = 0; i < numberOfObjectDestroyed; i++)
+                    var frameNumber = snapshotReader.Read<uint>(ref snapshotBitStream);
+                    var numberOfObjectDestroyed = snapshotReader.Read<int>(ref snapshotBitStream);
+                    for (var i = 0; i < numberOfObjectDestroyed; i++)
                     {
-                        uint objectId = snapshotReader.Read<uint>(ref snapshotBitStream);
+                        var objectId = snapshotReader.Read<uint>(ref snapshotBitStream);
                         Console.WriteLine($"Received destroy object {objectId}");
                     }
-                    int numberOfObject = snapshotReader.Read<int>(ref snapshotBitStream);
-                    for (int i = 0; i < numberOfObject; i++)
+                    var numberOfObject = snapshotReader.Read<int>(ref snapshotBitStream);
+                    for (var i = 0; i < numberOfObject; i++)
                     {
-                        int classId = snapshotReader.Read<int>(ref snapshotBitStream);
-                        uint objectId = snapshotReader.Read<uint>(ref snapshotBitStream);
-                        Console.WriteLine($"Received object {objectId} with class {classId}");
+                        var classId = snapshotReader.Read<int>(ref snapshotBitStream);
+                        var objectId = snapshotReader.Read<uint>(ref snapshotBitStream);
                         
                         if (!_trackedNetObjects.ContainsKey(objectId))
                         {
                             var netObject = _linkingContext.CreateNetObject(classId, objectId);
-                            Console.WriteLine("Created new object with class {0} and object ID {1}", classId, objectId);
                             _trackedNetObjects.Add(objectId, netObject);
                         }
                         
@@ -81,6 +81,22 @@ namespace EchoSync.Replication.Client
         public bool HasAuthority()
         {
             return false;
+        }
+
+        public uint GetFrameNumber()
+        {
+            //TODO : Implement frame synchronisation (Issues #17)
+            return _frameNumber;
+        }
+
+        public FrameType GetFrameType()
+        {
+            return FrameType.Prediction;
+        }
+
+        public IPeer GetLocalPeer()
+        {
+            return _client;
         }
     }
 }
