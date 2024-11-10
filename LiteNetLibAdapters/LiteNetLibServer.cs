@@ -1,85 +1,86 @@
 ﻿using EchoSync.Transport;
 using LiteNetLib;
 
-namespace LiteNetLibAdapters;
-
-public class LiteNetLibServer : IServer
+namespace LiteNetLibAdapters
 {
-    public event IServer.OnConnectionRequestDelegate? OnConnectionRequest;
-    public event IServer.OnClientConnectedDelegate? OnClientConnected;
-    public event IServer.OnClientDisconnectedDelegate? OnClientDisconnected;
+    public class LiteNetLibServer : IServer
+    {
+        public event IServer.OnConnectionRequestDelegate? OnConnectionRequest;
+        public event IServer.OnClientConnectedDelegate? OnClientConnected;
+        public event IServer.OnClientDisconnectedDelegate? OnClientDisconnected;
 
-    private readonly int _port;
-    private readonly EventBasedNetListener _listener;
-    private readonly NetManager _server;
+        private readonly int _port;
+        private readonly EventBasedNetListener _listener;
+        private readonly NetManager _server;
 
-    private readonly Dictionary<int, LiteNetLibPeer> _peers = new();
+        private readonly Dictionary<int, LiteNetLibPeer> _peers = new();
     
-    public LiteNetLibServer(int port)
-    {
-        _port = port;
-        _listener = new EventBasedNetListener();
-        _server = new NetManager(_listener);
+        public LiteNetLibServer(int port)
+        {
+            _port = port;
+            _listener = new EventBasedNetListener();
+            _server = new NetManager(_listener);
         
-        _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
-        _listener.PeerConnectedEvent += PeerConnectedEventHandler;
-        _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
+            _listener.ConnectionRequestEvent += ConnectionRequestEventHandler;
+            _listener.PeerConnectedEvent += PeerConnectedEventHandler;
+            _listener.PeerDisconnectedEvent += PeerDisconnectedEventHandler;
         
-        _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
-    }
-
-    private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
-    {
-        if (!_peers.TryGetValue(peer.Id, out LiteNetLibPeer? value))
-        {
-            return;
+            _listener.NetworkReceiveEvent += NetworkReceiveEventHandler;
         }
 
-        value.QueueData(reader, channel, deliveryMethod);
-    }
-
-    private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo info)
-    {
-        if(_peers.ContainsKey(peer.Id))
+        private void NetworkReceiveEventHandler(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod deliveryMethod)
         {
-            OnClientDisconnected?.Invoke(_peers[peer.Id]);
-            _peers.Remove(peer.Id);
-        }
-    }
+            if (!_peers.TryGetValue(peer.Id, out LiteNetLibPeer? value))
+            {
+                return;
+            }
 
-    private void PeerConnectedEventHandler(NetPeer peer)
-    {
-        var p = new LiteNetLibPeer(peer);
-        _peers.Add(peer.Id, p);
-        OnClientConnected?.Invoke(p);
-    }
-
-    private void ConnectionRequestEventHandler(ConnectionRequest request)
-    {
-        Console.WriteLine(request.Data.RawData.Length);
-        bool? accept = OnConnectionRequest?.Invoke(request.RemoteEndPoint.Address.ToString(), request.RemoteEndPoint.Port, request.Data.RawData);
-        if (accept != null && accept.Value)
-        {
-            request.Accept();
-            return;
+            value.QueueData(reader, channel, deliveryMethod);
         }
 
-        request.Reject();
-    }
+        private void PeerDisconnectedEventHandler(NetPeer peer, DisconnectInfo info)
+        {
+            if(_peers.ContainsKey(peer.Id))
+            {
+                OnClientDisconnected?.Invoke(_peers[peer.Id]);
+                _peers.Remove(peer.Id);
+            }
+        }
 
-    public void Dispose()
-    {
-        _server.Stop();
-        GC.SuppressFinalize(this);
-    }
+        private void PeerConnectedEventHandler(NetPeer peer)
+        {
+            var p = new LiteNetLibPeer(peer);
+            _peers.Add(peer.Id, p);
+            OnClientConnected?.Invoke(p);
+        }
 
-    public void Tick(float deltaTimeSeconds)
-    {
-        _server.PollEvents();
-    }
+        private void ConnectionRequestEventHandler(ConnectionRequest request)
+        {
+            Console.WriteLine(request.Data.RawData.Length);
+            bool? accept = OnConnectionRequest?.Invoke(request.RemoteEndPoint.Address.ToString(), request.RemoteEndPoint.Port, request.Data.RawData);
+            if (accept != null && accept.Value)
+            {
+                request.Accept();
+                return;
+            }
 
-    public void Listen()
-    {
-        _server.Start(_port);
+            request.Reject();
+        }
+
+        public void Dispose()
+        {
+            _server.Stop();
+            GC.SuppressFinalize(this);
+        }
+
+        public void Tick(float deltaTimeSeconds)
+        {
+            _server.PollEvents();
+        }
+
+        public void Listen()
+        {
+            _server.Start(_port);
+        }
     }
 }

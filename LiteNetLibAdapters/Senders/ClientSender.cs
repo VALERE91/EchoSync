@@ -2,24 +2,25 @@
 using LiteNetLib;
 using LiteNetLib.Utils;
 
-namespace LiteNetLibAdapters.Senders;
-
-public class ClientSender(NetManager client) : IPacketSender
+namespace LiteNetLibAdapters.Senders
 {
-    public void SendPacket(int channel, Reliability reliability, ReadOnlySpan<byte> data)
+    public class ClientSender(NetManager client) : IPacketSender
     {
-        NetDataWriter writer = NetDataWriter.FromBytes(data.ToArray(), true);
-        switch (reliability)
+        public void SendPacket(int channel, Reliability reliability, ReadOnlySpan<byte> data)
         {
-            case Reliability.Unreliable:
-                client.SendToAll(writer, (byte)channel, DeliveryMethod.Unreliable);
-                return;
-            case Reliability.Sequenced:
-                client.SendToAll(writer, (byte)channel, DeliveryMethod.Sequenced);
-                return;
-            case Reliability.Reliable:
-                client.SendToAll(writer, (byte)channel, DeliveryMethod.ReliableOrdered);
-                return;
+            NetDataWriter writer = NetDataWriter.FromBytes(data.ToArray(), true);
+            switch (reliability)
+            {
+                case Reliability.Unreliable:
+                    client.SendToAll(writer, (byte)channel, DeliveryMethod.Unreliable);
+                    return;
+                case Reliability.Sequenced:
+                    client.SendToAll(writer, (byte)channel, DeliveryMethod.Sequenced);
+                    return;
+                case Reliability.Reliable:
+                    client.SendToAll(writer, (byte)channel, DeliveryMethod.ReliableOrdered);
+                    return;
+            }
         }
     }
 }
