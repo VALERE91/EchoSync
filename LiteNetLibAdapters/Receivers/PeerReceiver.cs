@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using EchoSync.Transport;
 using LiteNetLib;
 
@@ -6,7 +8,7 @@ namespace LiteNetLibAdapters.Receivers
 {
     public class PeerReceiver : IPacketReceiver
     {
-        private readonly Dictionary<byte, Queue<NetPacketReader>> _packets = new();
+        private readonly Dictionary<byte, Queue<NetPacketReader>> _packets = new Dictionary<byte, Queue<NetPacketReader>>();
     
         public void QueueData(NetPacketReader reader, byte channel)
         {

@@ -1,4 +1,5 @@
-﻿using EchoSync.Transport;
+﻿using System;
+using EchoSync.Transport;
 using LiteNetLib;
 
 namespace LiteNetLibAdapters.Senders
