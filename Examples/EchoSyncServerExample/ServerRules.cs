@@ -28,7 +28,7 @@ public class ServerRules(World world) : IServerRules
             return;
         }
         
-        _players.Add(playerController.Player.PlayerId, world.SpawnObject<Character>());
+        _players.Add(playerController.Player.PlayerId, world.SpawnObject<Character>(playerController)!);
     }
 
     public void DespawnPlayer(Player player)

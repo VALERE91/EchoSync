@@ -47,6 +47,16 @@ namespace EchoSync.Inputs
 
         private uint _latestFramePlayed = 0;
         private uint _currentFrame = 0;
+
+        protected PlayerController()
+        {
+            _currentFrame = 0;
+            _currentInputFrame = new InputFrame
+            {
+                FrameNumber = _currentFrame,
+                Values = new Dictionary<string, InputValue>()
+            };
+        }
         
         public void SetPlayer(Player player)
         {
@@ -61,11 +71,6 @@ namespace EchoSync.Inputs
 
         public void AddInputHandler(string inputName, OnInputFiredDelegate onInputFired)
         {
-            if (Player == null)
-            {
-                throw new Exception("Player is null");
-            }
-            
             if (!_inputListeners.ContainsKey(inputName))
             {
                 _inputListeners.Add(inputName, new List<OnInputFiredDelegate>());
@@ -75,11 +80,6 @@ namespace EchoSync.Inputs
         
         public void RemoveInputHandler(string inputName, OnInputFiredDelegate onInputFired)
         {
-            if (Player == null)
-            {
-                throw new Exception("Player is null");
-            }
-            
             if (!_inputListeners.ContainsKey(inputName))
             {
                 return;
@@ -119,7 +119,11 @@ namespace EchoSync.Inputs
                 _currentFrame++;
                 _currentInputFrame.FrameNumber = _currentFrame;
                 _inputFrameHistory.AddLast(_currentInputFrame);
-                _currentInputFrame = new InputFrame();
+                _currentInputFrame = new InputFrame
+                {
+                    FrameNumber = _currentFrame,
+                    Values = new Dictionary<string, InputValue>()
+                };
                 while (_inputFrameHistory.Count > 10)
                 {
                     _inputFrameHistory.RemoveFirst();
@@ -127,7 +131,12 @@ namespace EchoSync.Inputs
                 //Create and send the input frame
                 Span<byte> buffer = stackalloc byte[1024];
                 buffer = SerializeInputs(ref buffer);
-                Player?.NetworkPeer.Sender.SendPacket(1, Reliability.Unreliable, buffer);   
+                if (Player == null)
+                {
+                    throw new Exception("PLAYER IS NULL");
+                }
+                    
+                Player.NetworkPeer.Sender.SendPacket(1, Reliability.Unreliable, buffer);
             }
         }
 
