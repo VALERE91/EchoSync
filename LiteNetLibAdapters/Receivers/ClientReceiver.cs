@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
 using EchoSync.Transport;
 using LiteNetLib;
 
@@ -8,7 +9,7 @@ namespace LiteNetLibAdapters.Receivers
     {
         private readonly EventBasedNetListener _listener;
 
-        private readonly Dictionary<byte, Queue<NetPacketReader>> _packets = new();
+        private readonly Dictionary<byte, Queue<NetPacketReader>> _packets = new Dictionary<byte, Queue<NetPacketReader>>();
     
         public ClientReceiver(EventBasedNetListener listener)
         {
@@ -46,7 +47,7 @@ namespace LiteNetLibAdapters.Receivers
             return _packets[(byte)channel].Count > 0;
         }
 
-        public bool PeekLatest(int channel, [UnscopedRef] out ReadOnlySpan<byte> data)
+        public bool PeekLatest(int channel, out ReadOnlySpan<byte> data)
         {
             if (!_packets.TryGetValue((byte)channel, out var readers))
             {
