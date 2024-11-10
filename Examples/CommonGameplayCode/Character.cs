@@ -1,6 +1,7 @@
 ﻿using EchoSync;
 using EchoSync.Inputs;
 using EchoSync.Replication;
+using EchoSync.Replication.Server;
 using EchoSync.Serialization;
 using EchoSync.Utils;
 
@@ -26,12 +27,15 @@ public class Character : NetObject<Character>, IWorldObject
     [NetProperty]
     public Vector3 Position { get; protected set; }
     
-    private Vector3 _speed = new Vector3 { X = 1, Y = 1, Z = 1 };
+    private Vector3 _speed = new Vector3 { X = 0, Y = 0, Z = 0 };
     
     public static Func<uint, NetObject<Character>> Factory() => (uint objectId) =>
     {
         IWorld world = ServiceLocator.Get<IWorld>();
         var playerController = world.SpawnObject<GamePlayerController>()!;
+        IReplicationEngine replicationEngine = ServiceLocator.Get<IReplicationEngine>();
+        var player = new Player(0, replicationEngine.GetLocalPeer());
+        playerController.SetPlayer(player);
         return world.SpawnObject<Character>(objectId, playerController)!;
     };
     
@@ -53,6 +57,9 @@ public class Character : NetObject<Character>, IWorldObject
         {
             _controller.AddInput("move_x", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
             _controller.AddInput("move_y", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
+            
+            Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
+            
             return;
         }
         
@@ -74,12 +81,12 @@ public class Character : NetObject<Character>, IWorldObject
         _controller.AddInputHandler("move_x", (value) =>
         {
             if (value.Type != InputValueType.Number) return;
-            _speed.X *= value.NumberValue;
+            _speed.X += value.NumberValue;
         });
         _controller.AddInputHandler("move_y", (value) =>
         {
             if (value.Type != InputValueType.Number) return;
-            _speed.Y *= value.NumberValue;
+            _speed.Y += value.NumberValue;
         });
     }
 }

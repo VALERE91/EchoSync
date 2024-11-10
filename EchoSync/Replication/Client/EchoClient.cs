@@ -93,5 +93,10 @@ namespace EchoSync.Replication.Client
         {
             return FrameType.Prediction;
         }
+
+        public IPeer GetLocalPeer()
+        {
+            return _client;
+        }
     }
 }

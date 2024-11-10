@@ -1,4 +1,6 @@
-﻿namespace EchoSync.Replication
+﻿using EchoSync.Transport;
+
+namespace EchoSync.Replication
 {
     public enum FrameType
     {
@@ -19,5 +21,7 @@
         public uint GetFrameNumber();
         
         public FrameType GetFrameType();
+        
+        public IPeer GetLocalPeer();
     }
 }

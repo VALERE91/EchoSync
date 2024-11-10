@@ -89,10 +89,11 @@ namespace EchoSync.Inputs
         
         public void Tick(float deltaTimeSeconds)
         {
+            _currentFrame++;
             if (_replicationEngine.HasAuthority())
             {
                 InputFrame inputFrame = _inputFrameHistory
-                    .First(inputFrame => inputFrame.FrameNumber == _latestFramePlayed + 1);
+                    .FirstOrDefault(inputFrame => inputFrame.FrameNumber == _latestFramePlayed + 1);
                 if (inputFrame.FrameNumber == 0)
                 {
                     return;
@@ -116,7 +117,6 @@ namespace EchoSync.Inputs
             }
             else
             {
-                _currentFrame++;
                 _currentInputFrame.FrameNumber = _currentFrame;
                 _inputFrameHistory.AddLast(_currentInputFrame);
                 _currentInputFrame = new InputFrame
@@ -129,7 +129,7 @@ namespace EchoSync.Inputs
                     _inputFrameHistory.RemoveFirst();
                 }
                 //Create and send the input frame
-                Span<byte> buffer = stackalloc byte[1024];
+                Span<byte> buffer = stackalloc byte[1000];
                 buffer = SerializeInputs(ref buffer);
                 if (Player == null)
                 {
@@ -144,11 +144,12 @@ namespace EchoSync.Inputs
         {
             BitStream bitStream = new BitStream(buffer);
             EchoBitStream writer = new EchoBitStream();
+            writer.Write<int>(ref bitStream, _inputFrameHistory.Count);
             foreach (var inputFrame in _inputFrameHistory)
             {
                 SerializeInputFrame(inputFrame, ref bitStream, writer);
             }
-            return buffer;
+            return buffer.Slice(0, bitStream.BytePosition);
         }
         
         private void SerializeInputFrame(InputFrame frame, ref BitStream bitStream, IBitWriter writer)
@@ -173,8 +174,11 @@ namespace EchoSync.Inputs
         
         private InputFrame DeserializeInputFrame(ref BitStream bitStream, IBitReader writer)
         {
-            InputFrame frame = new InputFrame();
-            frame.FrameNumber = writer.Read<uint>(ref bitStream);
+            InputFrame frame = new InputFrame
+            {
+                FrameNumber = writer.Read<uint>(ref bitStream),
+                Values = new Dictionary<string, InputValue>()
+            };
             int inputCount = writer.Read<int>(ref bitStream);
             
             for (int i = 0; i < inputCount; i++)
@@ -207,7 +211,8 @@ namespace EchoSync.Inputs
         {
             BitStream bitStream = new BitStream(buffer);
             EchoBitStream reader = new EchoBitStream();
-            while (bitStream.BytePosition < bitStream.Buffer.Length)
+            int frameCount = reader.Read<int>(ref bitStream);
+            for (int i = 0; i < frameCount; i++)
             {
                 InputFrame frame = DeserializeInputFrame(ref bitStream, reader);
                 //Check if we don't already have the frame
@@ -215,7 +220,7 @@ namespace EchoSync.Inputs
                 {
                     continue;
                 }
-                _inputFrameHistory.AddLast(frame);
+                _inputFrameHistory.AddLast(frame);   
             }
         }
         
