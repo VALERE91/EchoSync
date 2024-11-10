@@ -64,7 +64,7 @@ namespace EchoSync.Inputs
             Player = player;
         }
 
-        public void InputReceived(Span<byte> inputs)
+        public void InputReceived(ref Span<byte> inputs)
         {
             //Deserialize the input frame
             InputMessage message = new InputMessage();

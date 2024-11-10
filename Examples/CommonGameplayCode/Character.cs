@@ -27,6 +27,8 @@ public class Character : NetObject<Character>, IWorldObject
     
     [NetProperty]
     public Vector3 Position { get; protected set; }
+
+    private float _timeSinceShot = 0;
     
     private Vector3 _speed = new Vector3 { X = 0, Y = 0, Z = 0 };
     
@@ -58,7 +60,7 @@ public class Character : NetObject<Character>, IWorldObject
         {
             throw new Exception("Only the server can shoot");
         }
-        Console.WriteLine("Server shoot");
+        Console.WriteLine("Server shoot with direction: " + direction.X + ", " + direction.Y + ", " + direction.Z);
     }
     
     public void Tick(float deltaTimeSeconds)
@@ -69,13 +71,16 @@ public class Character : NetObject<Character>, IWorldObject
             _controller.AddInput("move_x", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
             _controller.AddInput("move_y", new InputValue { Type = InputValueType.Number, NumberValue = rand.NextSingle() });
 
-            bool shoot = true;
-            if (shoot)
+            _timeSinceShot += deltaTimeSeconds;
+            if (_timeSinceShot > 1)
             {
-                //_controller.CallRpc("Shoot", new Vector3 { X = rand.NextSingle(), Y = rand.NextSingle(), Z = rand.NextSingle() });
+                Vector3 direction = new Vector3 { X = rand.NextSingle(), Y = rand.NextSingle(), Z = rand.NextSingle() };
+                CallRpc("Shoot", direction);
+                _timeSinceShot = 0;
+                Console.WriteLine("Client shoot with direction: " + direction.X + ", " + direction.Y + ", " + direction.Z);
             }
             
-            Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
+            //Console.WriteLine("Position: " + Position.X + ", " + Position.Y + ", " + Position.Z);
             
             return;
         }

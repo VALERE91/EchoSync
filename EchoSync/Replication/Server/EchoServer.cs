@@ -111,7 +111,7 @@ namespace EchoSync.Replication.Server
                 if (!peer.Receiver.HasData(0)) continue;
                 if (!peer.Receiver.PeekLatest(0, out var data)) continue;
                 
-                var receivedData = data.ToArray();
+                Span<byte> receivedData = data.ToArray();
                 
                 MessageTypes messageType = (MessageTypes)receivedData[0];
                 if (messageType == MessageTypes.Input)
@@ -119,12 +119,17 @@ namespace EchoSync.Replication.Server
                     if (_peerPlayer.TryGetValue(peer.Identifier, out var playerId) 
                         && _playersControllers.TryGetValue(playerId, out var playerController))
                     {
-                        playerController.InputReceived(receivedData);
+                        playerController.InputReceived(ref receivedData);
                     }
                 }
                 else if (messageType == MessageTypes.Rpc)
                 {
-                    //TODO
+                    RpcMessage rpcMessage = new RpcMessage();
+                    var parameters = rpcMessage.Deserialize(ref receivedData);
+                    //Get the associated net object
+                    NetObject netObject = _netObjects.Find(o => o.ObjectId == rpcMessage.ObjectId);
+                    if (netObject == null) continue;
+                    netObject.InvokeRpc(rpcMessage.MethodId, parameters);
                 }
                 
                 peer.Receiver.PopLatest(0);
