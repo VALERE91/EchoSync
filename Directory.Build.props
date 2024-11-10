@@ -1,0 +1,6 @@
+<Project>
+   <PropertyGroup>
+        <BaseIntermediateOutputPath>$(SolutionDir)\obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+        <BaseOutputPath>$(SolutionDir)\Binaries\$(MSBuildProjectName)</BaseOutputPath>
+   </PropertyGroup>
+</Project>
