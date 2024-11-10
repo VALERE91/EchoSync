@@ -31,7 +31,7 @@ namespace EchoSync.Messages
             ObjectId = reader.Read<uint>(ref bitStream);
             MethodId = reader.Read<uint>(ref bitStream);
 
-            return receivedData.Slice(bitStream.BytePosition);
+            return receivedData.Slice(bitStream.BytePosition + 1);
         }
     }
 }
