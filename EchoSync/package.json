@@ -1,6 +1,6 @@
 {
     "name": "io.gamedev4fun.echosync",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "displayName": "EchoSync",
     "description": "Simple replication library",
     "unity": "2018.3",

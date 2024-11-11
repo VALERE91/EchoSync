@@ -15,7 +15,18 @@ namespace EchoSync.Replication.Utils
             _typeFactoryMap.TryAdd(classId, factory);
             return classId;
         }
-        
+
+        public int NetClassId<T>() where T : NetObject
+        {
+            int classId = TypeIdGenerator.GetOrRegisterTypeId(typeof(T));
+            if(_typeFactoryMap.ContainsKey(classId))
+            {
+                return classId;
+            }
+
+            throw new Exception("Unknown class id");
+        }
+
         public int RegisterNetClass(Type type, Func<uint, NetObject> factory)
         {
             int classId = TypeIdGenerator.GetOrRegisterTypeId(type);
