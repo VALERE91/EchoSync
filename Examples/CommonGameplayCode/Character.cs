@@ -42,7 +42,7 @@ public class Character : NetObject<Character>, IWorldObject
         return world.SpawnObject<Character>(objectId, playerController)!;
     };
     
-    public Character(PlayerController controller) : base(Factory())
+    public Character(PlayerController controller)
     {
         _controller = controller;
     }
