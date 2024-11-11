@@ -57,10 +57,10 @@ namespace EchoSync.Replication
         
         public static List<RpcMethod>? RpcMethods { get; private set; }
         
-        protected NetObject(Func<uint, NetObject<T>> factory)
+        protected NetObject()
         {
             var linkingContext = ServiceLocator.Get<ILinkingContext>();
-            ClassId = linkingContext.RegisterNetClass<T>(factory);
+            ClassId = linkingContext.NetClassId<T>();
             
             var objectIdGenerator = ServiceLocator.Get<IObjectIdGenerator>();
             ObjectId = HasAuthority() ? 
@@ -80,6 +80,9 @@ namespace EchoSync.Replication
 
         protected NetObject(uint objectId)
         {
+            var linkingContext = ServiceLocator.Get<ILinkingContext>();
+            ClassId = linkingContext.NetClassId<T>();
+            
             ObjectId = objectId;
             NetSchema ??= NetSchemaBuilder.CreateSchema<T>();
             
