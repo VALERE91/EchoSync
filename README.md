@@ -42,3 +42,4 @@ The replication system sometimes needs unique and global instances (Linking Cont
 - Prediction
 - Interpolation
 - Tooling
+- Implement code generation for RPCs and Net Properties by using Roslyn Generators
